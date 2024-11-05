@@ -9,6 +9,7 @@ const AiChat = () => {
     const [inputValue, setInputValue] = useState('');
     const [promptResponses, setPromptResponses] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null)
 
     const genAI = new GoogleGenerativeAI("AIzaSyCKhoblkz5pmVWRfIiMYIWdTbtb2VzSFms");
 
@@ -34,35 +35,38 @@ const AiChat = () => {
             setInputValue('');
             setLoading(false);
         } catch (error) {
-            console.log(error);
-            console.log("Something Went Wrong");
+            setError(error, 'Something went wrong.')
             setLoading(false);
         }
     };
 
     return (
-        <div className=" p-6 min-h-screen bg-zinc-800 flex flex-col justify-center items-center space-y-4">
+        <div className="p-6 min-h-screen bg-zinc-800 flex flex-col justify-center items-center space-y-4">
             {promptResponses.length > 0 && <p className='text-white text-4xl'>Chats</p>}
-            <div className="p-4 border-b-2">
-                {promptResponses.map((item, index) => (
-                    <div key={index} className="qa-pair">
+            <div className="p-4">
+                {error ? (
+                    <p className="text-red-500">{error}</p>
+                ) : (promptResponses.map((item, index) => (
+                    <div key={index} className="border-b-[0.1px] mb-3 pb-1">
                         <div className="text-white">You: {item.question}</div>
                         <div className="text-white">Fiza's AI: {item.answer}</div>
                     </div>
-                ))}
+                )))}
             </div>
-            <TypeAnimation
-                sequence={['How can I assist you?', 1000]}
-                wrapper="span"
-                speed={40}
-                style={{
-                    fontSize: '2em',
-                    color: 'white',
-                    fontWeight: 'bold',
-                    textAlign: 'center',
-                }}
-                repeat={Infinity}
-            />
+            {promptResponses.length === 0 && (
+                <TypeAnimation
+                    sequence={['How can I assist you?', 1000]}
+                    wrapper="span"
+                    speed={40}
+                    style={{
+                        fontSize: '2em',
+                        color: 'white',
+                        fontWeight: 'bold',
+                        textAlign: 'center',
+                    }}
+                    repeat={Infinity}
+                />
+            )}
             <div className="relative flex items-center">
                 <form onSubmit={getResponseForGivenPrompt}>
                     <input
@@ -77,7 +81,7 @@ const AiChat = () => {
                             className="absolute right-3 mt-2"
                         >
                             <i className="text-black text-3xl">
-                                <AiOutlineLoading3Quarters />
+                                <AiOutlineLoading3Quarters className='animate-spin' />
                             </i>
                         </button>
                     ) : (
