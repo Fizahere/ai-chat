@@ -16,8 +16,12 @@ const AiChat = () => {
         setInputValue(e.target.value);
     };
 
-    const getResponseForGivenPrompt = async () => {
+    const getResponseForGivenPrompt = async (e) => {
         try {
+            e.preventDefault()
+            if (!inputValue) {
+                return
+            }
             setLoading(true);
             const model = genAI.getGenerativeModel({ model: "gemini-pro" });
             const result = await model.generateContent(inputValue);
@@ -37,12 +41,13 @@ const AiChat = () => {
     };
 
     return (
-        <div className="min-h-screen bg-zinc-800 flex flex-col justify-center items-center space-y-4">
-             <div className="bg-pink-300">
+        <div className=" p-6 min-h-screen bg-zinc-800 flex flex-col justify-center items-center space-y-4">
+            {promptResponses.length > 0 && <p className='text-white text-4xl'>Chats</p>}
+            <div className="p-4 border-b-2">
                 {promptResponses.map((item, index) => (
                     <div key={index} className="qa-pair">
                         <div className="text-white">You: {item.question}</div>
-                        <div className="text-white">AI: {item.answer}</div>
+                        <div className="text-white">Fiza's AI: {item.answer}</div>
                     </div>
                 ))}
             </div>
@@ -58,23 +63,36 @@ const AiChat = () => {
                 }}
                 repeat={Infinity}
             />
-            <div className=''>
-                <input
-                    type="text"
-                    value={inputValue}
-                    onChange={handleInputChange}
-                    placeholder="Type your query"
-                    className="p-3 w-[40rem] rounded-md text-black rounded-e-full rounded-s-full relative"
-                />
-                <button onClick={getResponseForGivenPrompt}>
-                    {loading ? 
-                        <i className='text-black text-3xl absolute left-[77rem] top-[30.5rem]'><AiOutlineLoading3Quarters /></i>
-                        :
-                        <i className='text-black text-3xl absolute left-[77rem] top-[31rem]'><BiSolidSend /></i>
-                    }
-                </button>
+            <div className="relative flex items-center">
+                <form onSubmit={getResponseForGivenPrompt}>
+                    <input
+                        type="text"
+                        value={inputValue}
+                        onChange={handleInputChange}
+                        placeholder="Type your query"
+                        className="p-3 w-[30rem] rounded-md text-black rounded-e-full rounded-s-full"
+                    />
+                    {loading ? (
+                        <button
+                            className="absolute right-3 mt-2"
+                        >
+                            <i className="text-black text-3xl">
+                                <AiOutlineLoading3Quarters />
+                            </i>
+                        </button>
+                    ) : (
+                        <button
+                            onClick={getResponseForGivenPrompt}
+                            className="absolute right-3 mt-2"
+                            disabled={inputValue.length <= 0}
+                        >
+                            <i className={`text-3xl ${inputValue.length <= 0 ? 'text-gray-400' : 'text-black'}`}>
+                                <BiSolidSend />
+                            </i>
+                        </button>
+                    )}
+                </form>
             </div>
-           
         </div>
     );
 };
